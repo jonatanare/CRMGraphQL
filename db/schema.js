@@ -1,4 +1,3 @@
-
 // Schema
 const typeDefs = `#graphql
     type Usuario {
@@ -29,6 +28,20 @@ const typeDefs = `#graphql
         vendedor: ID
     }
 
+    type Pedido {
+        id: ID
+        pedido: [PedidoGrupo]
+        total: Float
+        cliente: ID
+        vendedor: ID
+        estado: EstadoPedido
+    }
+
+    type PedidoGrupo {
+        id: ID
+        cantidad: Int
+    }
+
     input UsuarioInput {
         nombre: String!
         apellido: String!
@@ -56,6 +69,24 @@ const typeDefs = `#graphql
 
     }
 
+    input PedidoProductoInput {
+        id: ID!
+        cantidad: Int
+    }
+
+    input PedidoInput {
+        pedido: [PedidoProductoInput]
+        total: Float
+        cliente: ID
+        estado: EstadoPedido
+    }
+
+    enum EstadoPedido {
+        PENDIENTE
+        COMPLETADO
+        CANCELADO
+    }
+
     type Query {
         # Usuarios
         obtenerUsuario(token: String!): Usuario
@@ -69,6 +100,11 @@ const typeDefs = `#graphql
         obtenerClientesVendedor: [Cliente]
         obtenerCliente(id: ID!): Cliente
 
+        # Pedidos
+        obtenerPedidos: [Pedido]
+        obtenerPedidoVendedor: [Pedido]
+        obtenerPedido(id: ID!): Pedido
+        obtenerPedidosEstado(estado: String!): [Pedido]
     }
 
 
@@ -84,7 +120,14 @@ const typeDefs = `#graphql
 
         # Clientes
         nuevoCliente(input: ClienteInput): Cliente
+        actualizarCliente(id: ID!, input: ClienteInput): Cliente
+        eliminarCliente(id: ID!): String
+
+        # Pedidos
+        nuevoPedido(input: PedidoInput): Pedido
+        actualizarPedido(id: ID!, input: PedidoInput): Pedido
+        eliminarPedido(id: ID!): String
     }
-`;
+`
 
 export default typeDefs
