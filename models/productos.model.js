@@ -20,4 +20,6 @@ const productosSchema = mongoose.Schema({
   timestamps: true
 })
 
+productosSchema.index({ nombre: 'text' })
+
 export const Producto = mongoose.model('Producto', productosSchema)

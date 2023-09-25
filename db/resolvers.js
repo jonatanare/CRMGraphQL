@@ -118,6 +118,77 @@ const resolvers = {
       } catch (error) {
         throw new GraphQLError(error)
       }
+    },
+    mejoresClientes: async () => {
+      try {
+        const clientes = await Pedido.aggregate([
+          { $match: { estado: 'COMPLETADO' } },
+          {
+            $group: {
+              _id: '$cliente',
+              total: { $sum: '$total' }
+            }
+          },
+          {
+            $lookup: {
+              from: 'clientes',
+              localField: '_id',
+              foreignField: '_id',
+              as: 'cliente'
+            }
+          },
+          {
+            $limit: 10
+          },
+          {
+            $sort: { total: -1 }
+          }
+        ])
+
+        return clientes
+      } catch (error) {
+        throw new GraphQLError(error)
+      }
+    },
+    mejoresVendedores: async () => {
+      try {
+        const vendedores = await Pedido.aggregate([
+          { $match: { estado: 'COMPLETADO' } },
+          {
+            $group: {
+              _id: '$vendedor',
+              total: { $sum: '$total' }
+            }
+          },
+          {
+            $lookup: {
+              from: 'usuarios',
+              localField: '_id',
+              foreignField: '_id',
+              as: 'vendedor'
+            }
+          },
+          {
+            $limit: 3
+          },
+          {
+            $sort: { total: -1 }
+          }
+        ])
+
+        return vendedores
+      } catch (error) {
+        throw new GraphQLError(error)
+      }
+    },
+    buscarProducto: async (_, { texto }, ctx) => {
+      try {
+        const productos = await Producto.find({ $text: { $search: texto } }).limit(10)
+
+        return productos
+      } catch (error) {
+        throw new GraphQLError(error)
+      }
     }
   },
   Mutation: {
