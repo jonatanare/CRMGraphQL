@@ -23,7 +23,8 @@
     "mongoose": "^7.5.2"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "standard": "^17.1.0"
   },
   "type": "module"
 }
