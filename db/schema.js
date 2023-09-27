@@ -99,7 +99,7 @@ const typeDefs = `#graphql
 
     type Query {
         # Usuarios
-        obtenerUsuario(token: String!): Usuario
+        obtenerUsuario: Usuario
 
         # Productos
         obtenerProductos: [Producto]

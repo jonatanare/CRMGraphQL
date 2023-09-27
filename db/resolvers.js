@@ -17,17 +17,15 @@ const crearToken = (usuario, secreta, expiresIn) => {
 // Resolvers
 const resolvers = {
   Query: {
-    obtenerUsuario: async (_, { token }) => {
-      const usuarioId = await jwt.verify(token, process.env.JWT_SECRET)
-
-      return usuarioId
+    obtenerUsuario: async (_, {}, ctx) => {
+      return ctx.usuario
     },
     obtenerProductos: async () => {
       try {
         const productos = await Producto.find({})
         return productos
       } catch (error) {
-        console.log(error)
+        throw new GraphQLError(error)
       }
     },
     obtenerProducto: async (_, { id }) => {
@@ -36,12 +34,12 @@ const resolvers = {
         const producto = await Producto.findById(id)
 
         if (!producto) {
-          throw new GraphQLError('Producto no encontrado')
+          throw new Error('Producto no encontrado')
         }
 
         return producto
       } catch (error) {
-        console.log(error)
+        throw new GraphQLError(error)
       }
     },
     obtenerClientes: async () => {
@@ -49,7 +47,7 @@ const resolvers = {
         const clientes = await Cliente.find({})
         return clientes
       } catch (error) {
-        console.log(error)
+        throw new GraphQLError(error)
       }
     },
     obtenerClientesVendedor: async (_, {}, ctx) => {
@@ -57,7 +55,7 @@ const resolvers = {
         const clientes = await Cliente.find({ vendedor: ctx.usuario.id.toString() })
         return clientes
       } catch (error) {
-        console.log(error)
+        throw new GraphQLError(error)
       }
     },
     obtenerCliente: async (_, { id }, ctx) => {
@@ -66,17 +64,17 @@ const resolvers = {
         const existeCliente = await Cliente.findById(id)
 
         if (!existeCliente) {
-          throw new GraphQLError('El cliente no existe')
+          throw new Error('El cliente no existe')
         }
 
         // Quien lo creo puede verlo
         if (existeCliente.vendedor.toString() !== ctx.usuario.id) {
-          throw new GraphQLError('No tienes autorización para esta acción')
+          throw new Error('No tienes autorización para esta acción')
         }
 
         return existeCliente
       } catch (error) {
-        console.log(error)
+        throw new GraphQLError(error)
       }
     },
     obtenerPedidos: async () => {
@@ -84,7 +82,7 @@ const resolvers = {
         const pedidos = await Pedido.find({})
         return pedidos
       } catch (error) {
-        console.log(error)
+        throw new GraphQLError(error)
       }
     },
     obtenerPedidoVendedor: async (_, {}, ctx) => {
@@ -92,7 +90,7 @@ const resolvers = {
         const pedidos = await Pedido.find({ vendedor: ctx.usuario.id.toString() })
         return pedidos
       } catch (error) {
-        console.log(error)
+        throw new GraphQLError(error)
       }
     },
     obtenerPedido: async (_, { id }, ctx) => {
@@ -283,7 +281,7 @@ const resolvers = {
         const existeCliente = await Cliente.findOne({ email })
 
         if (existeCliente) {
-          throw new GraphQLError('Este cliente ya existe')
+          throw new Error('Este cliente ya existe')
         }
 
         // TODO Asignar al vendedor
@@ -294,7 +292,7 @@ const resolvers = {
         const clienteGuardado = await nuevoCliente.save()
         return clienteGuardado
       } catch (error) {
-        console.log(error)
+        throw new GraphQLError(error)
       }
     },
     actualizarCliente: async (_, { id, input }, ctx) => {
@@ -324,19 +322,19 @@ const resolvers = {
         const existeCliente = await Cliente.findById(id)
 
         if (!existeCliente) {
-          throw new GraphQLError('Ese cliente no existe')
+          throw new Error('Ese cliente no existe')
         }
 
         // Verificar si el vendedor es quien edita
         if (existeCliente.vendedor.toString() !== ctx.usuario.id) {
-          throw new GraphQLError('No tienes autorización para esta acción.')
+          throw new Error('No tienes autorización para esta acción.')
         }
 
         // Eliminar Cliente
         await Cliente.findByIdAndDelete(id)
         return 'Cliente eliminado.'
       } catch (error) {
-        console.log(error)
+        throw new GraphQLError(error)
       }
     },
     nuevoPedido: async (_, { input }, ctx) => {

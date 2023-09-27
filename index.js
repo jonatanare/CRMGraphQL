@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken'
 import * as dotenv from 'dotenv'
 
 import conectarDB from './config/db.js'
+import { GraphQLError } from 'graphql'
 
 dotenv.config()
 
@@ -43,13 +44,13 @@ const { url } = await startStandaloneServer(server, {
     const token = req.headers.authorization || ''
     if (token) {
       try {
-        const usuario = jwt.verify(token, process.env.JWT_SECRET)
+        const usuario = jwt.verify(token.replace('Bearer ', ''), process.env.JWT_SECRET)
 
         return {
           usuario
         }
       } catch (error) {
-        console.log(error)
+        throw new GraphQLError(error)
       }
     }
   }
